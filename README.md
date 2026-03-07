@@ -25,7 +25,6 @@ smd_root = '/path/to/SMD';
 addpath(smd_root);
 addpath(fullfile(smd_root, 'helpers', 'crocker_grier'));
 addpath(fullfile(smd_root, 'helpers', 'simpletracker'));
-addpath(fullfile(smd_root, 'helpers', 'nd2reader'));
 addpath(fullfile(smd_root, 'helpers', 'drift'));
 ```
 
@@ -118,9 +117,6 @@ SMD/
 │   │   ├── simpletracker.m     Main tracker (J.-Y. Tinevez, 2011)
 │   │   ├── hungarianlinker.m   Hungarian algorithm linker
 │   │   └── nearestneighborlinker.m  Nearest-neighbor gap closing
-│   ├── nd2reader/              Nikon ND2 file reading (Jacob Zuo, MIT license)
-│   │   ├── ND2Open.m, ND2Read.m, ND2Close.m, ND2Info.m, ...
-│   │   └── LICENSE
 │   └── drift/                  Drift correction utilities
 │       ├── maxSpanningForest.m
 │       └── relativeTracksFromForest.m
@@ -138,6 +134,7 @@ SMD/
 
 - MATLAB R2019b+ (for `arguments` blocks)
 - Image Processing Toolbox (`imtophat`, `wiener2`, `imgaussfilt`, `imregionalmax`, `strel`)
+- [Bio-Formats for MATLAB](https://www.openmicroscopy.org/bio-formats/) — required for reading ND2 files (provides `BioformatsImage` and `getPlane`). Not needed for TIFF-only workflows.
 
 All other dependencies are included in `helpers/`.
 
@@ -147,7 +144,6 @@ All other dependencies are included in `helpers/`.
 |-----------|--------|---------|
 | `radialcenter.m` | Raghuveer Parthasarathy (U. Oregon, 2011-2012) | GPL v3 |
 | `gaussfit2DMLE.m` | Raghuveer Parthasarathy (2012) | — |
-| `nd2reader` | Jacob Zuo (2019) | MIT |
 | `simpletracker` | Jean-Yves Tinevez (2011-2012) | — |
 | `pkfnd.m`, `cntrd.m` | Eric Dufresne, Daniel Blair, John Crocker | — |
 | `wavelet_filter.m` | Based on Izeddin et al., *Opt. Express* 20, 2081-2095 (2012) | — |
