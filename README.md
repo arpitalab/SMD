@@ -1,4 +1,4 @@
-# sr_tracking
+# SMD
 
 MATLAB toolbox for single-molecule localization and tracking in fluorescence microscopy data.
 
@@ -13,7 +13,27 @@ MATLAB toolbox for single-molecule localization and tracking in fluorescence mic
 - Particle tracking via `simpletracker`
 - ROI-based trajectory culling with watershed segmentation
 - Drift correction via maximum spanning forest
+- ND2 and TIFF image stack support
 - Visualization of tracks, bright-field images, and intensity projections
+
+## Setup
+
+Add the toolbox and all helper directories to the MATLAB path:
+
+```matlab
+smd_root = '/path/to/SMD';
+addpath(smd_root);
+addpath(fullfile(smd_root, 'helpers', 'crocker_grier'));
+addpath(fullfile(smd_root, 'helpers', 'simpletracker'));
+addpath(fullfile(smd_root, 'helpers', 'nd2reader'));
+addpath(fullfile(smd_root, 'helpers', 'drift'));
+```
+
+Or add all at once:
+
+```matlab
+addpath(genpath('/path/to/SMD'));
+```
 
 ## Quick Start
 
@@ -76,19 +96,69 @@ smd.all_plot();
 | `remove_relative_motion()` | Drift correction via spanning forest |
 | `all_plot()` | 2x2 visualization panel |
 
+## Repository Structure
+
+```
+SMD/
+├── @SMD/                       Core class definition and methods
+│   ├── SMD.m                   Class definition, constructor, getters
+│   ├── localize.m              Spot detection + fitting (wavelet & LLR)
+│   ├── track.m                 Trajectory linking
+│   ├── cull_tracks.m           ROI-based track filtering
+│   ├── get_roi.m               ROI detection / manual drawing
+│   ├── image_regions.m         Bright-field image loading
+│   ├── remove_relative_motion.m  Drift correction
+│   └── all_plot.m              Visualization
+├── helpers/
+│   ├── crocker_grier/          Peak finding & wavelet detection
+│   │   ├── pkfnd.m             Local maxima finder (Crocker & Grier)
+│   │   ├── cntrd.m             Sub-pixel centroid refinement
+│   │   └── wavelet_filter.m    A-trous wavelet filter (Izeddin et al. 2012)
+│   ├── simpletracker/          Frame-to-frame particle linking
+│   │   ├── simpletracker.m     Main tracker (J.-Y. Tinevez, 2011)
+│   │   ├── hungarianlinker.m   Hungarian algorithm linker
+│   │   └── nearestneighborlinker.m  Nearest-neighbor gap closing
+│   ├── nd2reader/              Nikon ND2 file reading (Jacob Zuo, MIT license)
+│   │   ├── ND2Open.m, ND2Read.m, ND2Close.m, ND2Info.m, ...
+│   │   └── LICENSE
+│   └── drift/                  Drift correction utilities
+│       ├── maxSpanningForest.m
+│       └── relativeTracksFromForest.m
+├── calcBG.m                    Local background estimation (LMS filter)
+├── gaussfit2DMLE.m             Poisson MLE 2D Gaussian fitting (Parthasarathy)
+├── tiffread2.m                 Multi-frame TIFF reader
+├── llr.m                       Log-likelihood ratio spot detection
+├── mle_amp_setup.m             LLR kernel setup
+├── ls_int_gaussian.m           Integrated Gaussian fitting (Levenberg-Marquardt)
+├── radialcenter.m              Radial symmetry center finding (Parthasarathy, GPL)
+└── README.md
+```
+
 ## Dependencies
 
 - MATLAB R2019b+ (for `arguments` blocks)
 - Image Processing Toolbox (`imtophat`, `wiener2`, `imgaussfilt`, `imregionalmax`, `strel`)
-- `simpletracker` (included or on path)
-- `tiffread2` (included)
-- `wavelet_filter`, `pkfnd`, `cntrd` (a-trous / Crocker-Grier utilities)
+
+All other dependencies are included in `helpers/`.
+
+## Third-Party Acknowledgments
+
+| Component | Author | License |
+|-----------|--------|---------|
+| `radialcenter.m` | Raghuveer Parthasarathy (U. Oregon, 2011-2012) | GPL v3 |
+| `gaussfit2DMLE.m` | Raghuveer Parthasarathy (2012) | — |
+| `nd2reader` | Jacob Zuo (2019) | MIT |
+| `simpletracker` | Jean-Yves Tinevez (2011-2012) | — |
+| `pkfnd.m`, `cntrd.m` | Eric Dufresne, Daniel Blair, John Crocker | — |
+| `wavelet_filter.m` | Based on Izeddin et al., *Opt. Express* 20, 2081-2095 (2012) | — |
 
 ## References
 
 - Radial symmetry center: Parthasarathy, *Nature Methods* 9, 724–726 (2012)
 - Gaussian MLE fitting: Abraham et al., *Opt. Express* 17, 23352 (2009)
-- Log-likelihood ratio: based on Serge et al., *Nature Methods* 5, 687–694 (2008)
+- Log-likelihood ratio: Serge et al., *Nature Methods* 5, 687–694 (2008)
+- Wavelet detection: Izeddin et al., *Opt. Express* 20, 2081–2095 (2012)
+- Crocker-Grier algorithm: Crocker & Grier, *J. Colloid Interface Sci.* 179, 298–310 (1996)
 
 ## License
 
