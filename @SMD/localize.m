@@ -195,37 +195,19 @@ function [spots, stop_frame, timestamps, maxint_img] = detect_fit_llr(self, stac
         mean_sub = double(stack(iframe).data) - bg_mean;
         mean_sub(mean_sub < 0) = 0;
 
-        % LLR score image + binary mask
-        [score_img, binary] = llr(mean_sub, k, w, t, true);
+        % LLR detection: score image + binary + spot coords
+        % llr() now returns one detection per connected component
+        % at the max-score position (matching quot's label_spots)
+        [score_img, ~, det_coords] = llr(mean_sub, k, w, t, true);
 
-        % One peak per spot: regional maxima AND binary
-        peaks = imregionalmax(score_img) & binary;
-        [py_all, px_all] = find(peaks);
-
-        if isempty(py_all)
+        if isempty(det_coords)
             spots{iframe} = [1 1 -1 1 1 1 iframe 0 0];
             stop_frame = min(stop_frame, iframe);
             continue;
         end
 
-        % Sort by score (strongest first) for minimum-separation filter
-        scores = arrayfun(@(r,c) score_img(r,c), py_all, px_all);
-        [~, si] = sort(scores, 'descend');
-        py_all = py_all(si);
-        px_all = px_all(si);
-
-        % Minimum-separation filter (suppress weaker neighbours)
-        keep = true(size(py_all));
-        for ii = 2:numel(py_all)
-            if ~keep(ii), continue; end
-            dists = sqrt((py_all(1:ii-1) - py_all(ii)).^2 + ...
-                         (px_all(1:ii-1) - px_all(ii)).^2);
-            if any(dists(keep(1:ii-1)) < min_sep)
-                keep(ii) = false;
-            end
-        end
-        py_all = py_all(keep);
-        px_all = px_all(keep);
+        py_all = det_coords(:, 1);  % row
+        px_all = det_coords(:, 2);  % col
 
         npeaks = numel(py_all);
         total_spots = total_spots + npeaks;
