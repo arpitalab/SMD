@@ -10,15 +10,13 @@ classdef SMD < handle
 %   Two detection/fitting pipelines are available, selected via the
 %   detection_method property:
 %
-%     'wavelet'  - (default) a-trous wavelet filter + Crocker-Grier peak
-%                  finding + Poisson MLE Gaussian fitting
-%     'llr'      - Log-likelihood ratio test + radial symmetry or
+%     'llr'      - (default) Log-likelihood ratio test + radial symmetry or
 %                  integrated Gaussian fitting
+%     'wavelet'  - a-trous wavelet filter + Crocker-Grier peak finding +
+%                  Poisson MLE Gaussian fitting
 %
 %   Example:
 %       smd = SMD('/data/experiment/', 'movie.tif', 0.02, 50);
-%       smd.detection_method = 'llr';
-%       smd.noise_model = 'gaussian';
 %       smd.localize();
 %       smd.track();
 %       smd.all_plot();
@@ -40,8 +38,8 @@ classdef SMD < handle
             'gapFrames',         3, ...
             'minLengthBeforeGap',4, ...
             'linearMotion',      0, ...
-            'tracker',           'simpletracker')  % 'simpletracker' or 'quot'
-        detection_method char   = 'wavelet'         % 'wavelet' or 'llr'
+            'tracker',           'quot')            % 'simpletracker' or 'quot'
+        detection_method char   = 'llr'             % 'wavelet' or 'llr'
         noise_model      char   = 'gaussian'        % 'gaussian' (ls_int_gaussian) or 'poisson' (radialcenter + gaussfit2DMLE)
         psf_sigma        double = 1.3               % PSF std dev in pixels (used by LLR and integrated Gaussian)
         llr_params       struct = struct( ...       % LLR detection parameters
