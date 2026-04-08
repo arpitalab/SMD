@@ -5,12 +5,12 @@ MATLAB toolbox for single-molecule localization and tracking in fluorescence mic
 ## Features
 
 - **Two detection pipelines**:
-  - **Wavelet** (default) — a-trous wavelet filter + Crocker-Grier peak finding + Poisson MLE Gaussian fitting
-  - **LLR** — Log-likelihood ratio test + radial symmetry / integrated Gaussian fitting
+  - **LLR** (default) — Log-likelihood ratio test + radial symmetry / integrated Gaussian fitting
+  - **Wavelet** — a-trous wavelet filter + Crocker-Grier peak finding + Poisson MLE Gaussian fitting
 - **Two noise models** for the LLR pipeline:
   - `'gaussian'` — least-squares integrated Gaussian (fast, suitable for high-SNR data)
   - `'poisson'` — radial symmetry initial guess + Poisson MLE Gaussian refinement
-- Particle tracking via `simpletracker`
+- Particle tracking via `quot` tracker (Hungarian linker)
 - ROI-based trajectory culling with watershed segmentation
 - Drift correction via maximum spanning forest
 - ND2 and TIFF image stack support
@@ -40,18 +40,21 @@ addpath(genpath('/path/to/SMD'));
 % Create an SMD object
 smd = SMD('/path/to/data/', 'movie.tif', 0.02, 50);
 
-% --- Option A: Wavelet pipeline (default) ---
+% --- Default pipeline: LLR detection + quot tracker ---
 smd.localize();
 smd.track();
 smd.all_plot();
 
-% --- Option B: LLR pipeline ---
-smd.detection_method = 'llr';
-smd.noise_model = 'gaussian';   % or 'poisson'
-smd.psf_sigma = 1.3;            % PSF width in pixels
+% --- Option: Wavelet pipeline ---
+smd.detection_method = 'wavelet';
 smd.localize();
 smd.track();
 smd.all_plot();
+
+% --- LLR tuning (optional) ---
+smd.noise_model = 'poisson';    % radialcenter + Poisson MLE (more accurate, slower)
+smd.psf_sigma = 1.3;            % PSF width in pixels
+smd.llr_params.t = 20.0;        % detection score threshold
 ```
 
 ## Class Properties
@@ -68,11 +71,11 @@ smd.all_plot();
 | `frame_rate` | — | Acquisition frame rate (Hz) |
 | `localization_box` | `3` | Half-width of fitting sub-image (pixels) |
 | `localization_threshold` | `1.75` | Wavelet detection threshold |
-| `detection_method` | `'wavelet'` | `'wavelet'` or `'llr'` |
+| `detection_method` | `'llr'` | `'llr'` or `'wavelet'` |
 | `noise_model` | `'gaussian'` | `'gaussian'` or `'poisson'` (LLR only) |
 | `psf_sigma` | `1.3` | PSF standard deviation (pixels) |
 | `llr_params` | `struct('k',1,'w',9,'t',20)` | LLR kernel width, window, threshold |
-| `tracking_params` | `struct(...)` | Tracking radius, gap frames, min length, motion type |
+| `tracking_params` | `struct(...)` | Tracking radius, gap frames, min length, motion type, tracker (`'quot'` or `'simpletracker'`) |
 
 ### Read-Only (use getter methods)
 
