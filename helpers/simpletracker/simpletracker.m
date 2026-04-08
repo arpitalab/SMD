@@ -154,7 +154,7 @@ function [ tracks adjacency_tracks A ] = simpletracker(points, varargin)
         end
         source = points{i};
         target = points{i+1};
-        if(isempty(source) | isempty(target))
+        if isempty(source) || isempty(target)
             fprintf('something went wrong\n');
             %pause
         end

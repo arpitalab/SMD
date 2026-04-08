@@ -36,10 +36,11 @@ classdef SMD < handle
         localization_box       double = 3           % half-width of fitting box (pixels)
         localization_threshold double = 1.75        % wavelet detection threshold (1-2)
         tracking_params struct = struct( ...        % tracking parameters
-            'trackingRadius',    2, ...
+            'trackingRadius',    0.32, ...          %   max jump distance in µm
             'gapFrames',         3, ...
             'minLengthBeforeGap',4, ...
-            'linearMotion',      0)
+            'linearMotion',      0, ...
+            'tracker',           'simpletracker')  % 'simpletracker' or 'quot'
         detection_method char   = 'wavelet'         % 'wavelet' or 'llr'
         noise_model      char   = 'gaussian'        % 'gaussian' (ls_int_gaussian) or 'poisson' (radialcenter + gaussfit2DMLE)
         psf_sigma        double = 1.3               % PSF std dev in pixels (used by LLR and integrated Gaussian)
